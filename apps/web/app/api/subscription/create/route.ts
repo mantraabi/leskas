@@ -31,7 +31,33 @@ export async function POST(request: NextRequest) {
   const orderId = generateOrderId(user.id);
   const expiresAt = addMonths(new Date(), 1);
 
-  // Simpan subscription pending
+  // Panggil Duitku DULU sebelum simpan ke database
+  let result;
+  try {
+    result = await createPayment({
+      merchantOrderId: orderId,
+      paymentAmount: amount,
+      productDetails: planNames[plan] ?? `LesKas ${plan}`,
+      customerName: profile?.name ?? "Guru",
+      customerPhone: profile?.phone ?? "",
+      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings`,
+      callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/subscription/webhook`,
+    });
+    console.log("Duitku result:", JSON.stringify(result));
+  } catch (err) {
+    console.log("Duitku error:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
+
+  if (!result?.paymentUrl) {
+    console.log("No paymentUrl:", JSON.stringify(result));
+    return NextResponse.json(
+      { error: result?.message ?? "Gagal membuat link pembayaran." },
+      { status: 500 }
+    );
+  }
+
+  // Simpan ke database SETELAH Duitku berhasil
   await supabase.from("subscriptions").insert({
     guru_id: user.id,
     plan,
@@ -40,23 +66,6 @@ export async function POST(request: NextRequest) {
     order_id: orderId,
     status: "pending",
   });
-
-  const result = await createPayment({
-    merchantOrderId: orderId,
-    paymentAmount: amount,
-    productDetails: planNames[plan] ?? `LesKas ${plan}`,
-    customerName: profile?.name ?? "Guru",
-    customerPhone: profile?.phone ?? "",
-    returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings`,
-    callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/subscription/webhook`,
-  });
-
-  if (!result.paymentUrl) {
-    return NextResponse.json(
-      { error: "Gagal membuat link pembayaran." },
-      { status: 500 }
-    );
-  }
 
   return NextResponse.json({ paymentUrl: result.paymentUrl });
 }
