@@ -40,37 +40,58 @@ export function StudentForm() {
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-      router.push("/auth/login");
-      return;
-    }
+  if (!user) {
+    router.push("/auth/login");
+    return;
+  }
 
-    const { error } = await supabase.from("students").insert({
-      guru_id: user.id,
-      name: form.name,
-      subject: form.subject,
-      grade: form.grade || null,
-      parent_name: form.parent_name || null,
-      parent_phone: form.parent_phone || null,
-      notes: form.notes || null,
-    });
+  // Cek limit plan Free
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", user.id)
+    .single();
 
-    if (error) {
-      setError("Gagal menyimpan. Coba lagi.");
+  if (profile?.plan === "free") {
+    const { count } = await supabase
+      .from("students")
+      .select("*", { count: "exact", head: true })
+      .eq("guru_id", user.id)
+      .eq("status", "active");
+
+    if ((count ?? 0) >= 10) {
+      setError("Batas maksimal 10 siswa untuk Free Plan. Upgrade ke Pro untuk unlimited siswa.");
       setLoading(false);
       return;
     }
-
-    router.push("/dashboard/students");
-    router.refresh();
   }
+
+  const { error } = await supabase.from("students").insert({
+    guru_id: user.id,
+    name: form.name,
+    subject: form.subject,
+    grade: form.grade || null,
+    parent_name: form.parent_name || null,
+    parent_phone: form.parent_phone || null,
+    notes: form.notes || null,
+  });
+
+  if (error) {
+    setError("Gagal menyimpan. Coba lagi.");
+    setLoading(false);
+    return;
+  }
+
+  router.push("/dashboard/students");
+  router.refresh();
+}
 
   const inputClass =
     "w-full h-10 px-3 rounded-lg border border-[#E4E2DC] bg-white text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors";
