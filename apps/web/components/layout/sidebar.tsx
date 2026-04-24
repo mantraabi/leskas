@@ -9,6 +9,7 @@ import {
   FileText,
   Calendar,
   BarChart2,
+  Settings,
   LogOut,
 } from "lucide-react";
 
@@ -18,6 +19,7 @@ const navItems = [
   { label: "Tagihan", href: "/dashboard/invoices", icon: FileText },
   { label: "Jadwal", href: "/dashboard/sessions", icon: Calendar },
   { label: "Laporan", href: "/dashboard/reports", icon: BarChart2 },
+  { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
 
 interface SidebarProps {
