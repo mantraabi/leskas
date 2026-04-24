@@ -10,6 +10,7 @@ import {
   format,
 } from "date-fns";
 import { id } from "date-fns/locale";
+import { ExportButton } from "@/components/reports/export-button";
 
 export default async function ReportsPage() {
   const supabase = await createClient();
@@ -81,25 +82,26 @@ export default async function ReportsPage() {
   ).length ?? 0;
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-5">
+  <div className="max-w-4xl mx-auto flex flex-col gap-5">
+    <div className="flex items-center justify-between">
       <div>
         <h1 className="text-xl font-bold text-[#1C1B19]">Laporan</h1>
         <p className="text-sm text-[#6B6860] mt-0.5 capitalize">
           {format(now, "MMMM yyyy", { locale: id })}
         </p>
       </div>
-
-      <MonthlySummary
-        pemasukanBulanIni={pemasukanBulanIni}
-        totalTagihan={totalTagihan}
-        tagihanLunas={tagihanLunas}
-        tagihanBelumBayar={tagihanBelumBayar}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <RevenueChart data={revenueData} />
-        <TopStudents data={studentRevenue} />
-      </div>
+      <ExportButton invoices={invoices ?? []} />
     </div>
-  );
-}
+    <MonthlySummary
+      pemasukanBulanIni={pemasukanBulanIni}
+      totalTagihan={totalTagihan}
+      tagihanLunas={tagihanLunas}
+      tagihanBelumBayar={tagihanBelumBayar}
+    />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <RevenueChart data={revenueData} />
+      <TopStudents data={studentRevenue} />
+    </div>
+  </div>
+);
+} 
