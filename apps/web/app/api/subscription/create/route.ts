@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
       paymentAmount: amount,
       productDetails: planNames[plan] ?? `LesKas ${plan}`,
       customerName: profile?.name ?? "Guru",
-      customerPhone: profile?.phone ?? "",
+      email: user.email!,
+      phoneNumber: profile?.phone ?? "",
       returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings`,
       callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/subscription/webhook`,
     });

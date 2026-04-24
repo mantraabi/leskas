@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
       paymentAmount: sisaTagihan,
       productDetails: `Les - ${student?.name ?? "Siswa"}`,
       customerName: student?.parent_name ?? student?.name ?? "Ortu",
-      customerPhone: student?.parent_phone ?? "",
+      email: user.email!,
+      phoneNumber: student?.parent_phone ?? "",
       returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/invoices/${invoiceId}`,
       callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/webhook`,
     });
