@@ -1,21 +1,37 @@
 {
-  "$schema": "https://turborepo.dev/schema.json",
+  "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_APP_URL",
+        "NEXT_PUBLIC_MIDTRANS_CLIENT_KEY",
+        "FONNTE_TOKEN",
+        "DUITKU_MERCHANT_CODE",
+        "DUITKU_API_KEY",
+        "DUITKU_BASE_URL",
+        "MIDTRANS_SERVER_KEY",
+        "MIDTRANS_CLIENT_KEY",
+        "MIDTRANS_IS_PRODUCTION"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "type-check": {
+      "dependsOn": ["^type-check"]
+    },
+    "clean": {
+      "cache": false
     }
   }
 }
