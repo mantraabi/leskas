@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 
 export default async function AdminLayout({
   children,
@@ -30,12 +31,7 @@ export default async function AdminLayout({
           </div>
           <span className="text-sm font-bold text-[#1C1B19]">LesKas Admin</span>
         </div>
-        <a
-          href="/auth/login"
-          className="text-xs text-[#6B6860] hover:text-[#1C1B19] transition-colors"
-        >
-          Keluar
-        </a>
+        <AdminLogoutButton />
       </div>
       <div className="p-6 max-w-5xl mx-auto">
         {children}
