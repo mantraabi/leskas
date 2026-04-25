@@ -1,6 +1,6 @@
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { createClient } from "../../lib/supabase/server";
-import { Sidebar } from "../../components/layout/sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -11,6 +11,15 @@ export default async function DashboardLayout({
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/login");
+
+  // Kalau admin, redirect ke halaman admin
+  const { data: admin } = await supabase
+    .from("admins")
+    .select("id")
+    .eq("id", user.id)
+    .single();
+
+  if (admin) redirect("/admin");
 
   const { data: profile } = await supabase
     .from("profiles")

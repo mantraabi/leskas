@@ -31,11 +31,11 @@ export default async function AdminLayout({
           <span className="text-sm font-bold text-[#1C1B19]">LesKas Admin</span>
         </div>
         <a
-                    href="/dashboard"
-            className="text-xs text-[#6B6860] hover:text-[#1C1B19] transition-colors"
-            >
-            Ke Dashboard
-            </a>
+          href="/auth/login"
+          className="text-xs text-[#6B6860] hover:text-[#1C1B19] transition-colors"
+        >
+          Keluar
+        </a>
       </div>
       <div className="p-6 max-w-5xl mx-auto">
         {children}
