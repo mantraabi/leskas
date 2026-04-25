@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LesKas — Kelola Keuangan Les Privat",
-  description: "Aplikasi pengelolaan keuangan untuk guru les privat.",
+  title: {
+    default: "LesKas — Kelola Keuangan Les Privat",
+    template: "%s | LesKas",
+  },
+  description: "Aplikasi pengelolaan keuangan untuk guru les privat. Kelola siswa, jadwal, tagihan, dan laporan dalam satu tempat.",
+  keywords: ["les privat", "keuangan guru", "tagihan siswa", "aplikasi les"],
+  authors: [{ name: "LesKas" }],
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -12,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
