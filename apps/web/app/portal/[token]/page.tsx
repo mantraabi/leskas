@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEffectivePlan } from "@/lib/plan";
 import { format } from "date-fns";
@@ -16,7 +17,27 @@ interface StudentRow {
   grade: string | null;
   parent_name: string | null;
   guru_id: string;
-  profiles: { name: string | null; plan: string | null; plan_expires_at: string | null } | null;
+  profiles: {
+    name: string | null;
+    plan: string | null;
+    plan_expires_at: string | null;
+    brand_logo_url: string | null;
+    brand_color: string | null;
+  } | null;
+}
+
+const DEFAULT_BRAND_COLOR = "#1A6B5A";
+
+function isValidHexColor(c: string | null | undefined): c is string {
+  return !!c && /^#[0-9A-Fa-f]{6}$/.test(c);
+}
+
+/** Tambah alpha (0-1) ke hex color #RRGGBB → #RRGGBBAA */
+function withAlpha(hex: string, alpha: number) {
+  const a = Math.round(Math.max(0, Math.min(1, alpha)) * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return `${hex}${a}`;
 }
 
 interface InvoiceRow {
@@ -67,7 +88,7 @@ export default async function ParentPortalPage({ params }: Props) {
   const { data: student } = await supabase
     .from("students")
     .select(
-      "id, name, subject, grade, parent_name, guru_id, profiles!students_guru_id_fkey(name, plan, plan_expires_at)"
+      "id, name, subject, grade, parent_name, guru_id, profiles!students_guru_id_fkey(name, plan, plan_expires_at, brand_logo_url, brand_color)"
     )
     .eq("portal_token", token)
     .maybeSingle<StudentRow>();
@@ -115,13 +136,35 @@ export default async function ParentPortalPage({ params }: Props) {
     0
   );
 
+  const brandColor = isValidHexColor(student.profiles?.brand_color)
+    ? student.profiles.brand_color
+    : DEFAULT_BRAND_COLOR;
+  const brandLogoUrl = student.profiles?.brand_logo_url ?? null;
+
   return (
     <div className="max-w-2xl mx-auto px-5 py-8">
 
       {/* Header dari guru */}
       <div className="bg-white border border-[#E4E2DC] rounded-2xl px-5 py-4 mb-5 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center flex-shrink-0">
-          <GraduationCap size={20} />
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden"
+          style={{
+            backgroundColor: brandLogoUrl ? "transparent" : withAlpha(brandColor, 0.1),
+            color: brandColor,
+          }}
+        >
+          {brandLogoUrl ? (
+            <Image
+              src={brandLogoUrl}
+              alt="Logo"
+              width={40}
+              height={40}
+              className="w-full h-full object-contain"
+              unoptimized
+            />
+          ) : (
+            <GraduationCap size={20} />
+          )}
         </div>
         <div className="min-w-0">
           <p className="text-xs text-[#6B6860]">Portal Tagihan</p>

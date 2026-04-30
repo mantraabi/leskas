@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { PlanCard } from "@/components/settings/plan-card";
 import { ProfileForm } from "../../../components/settings/profile-form";
+import { BrandingForm } from "../../../components/settings/branding-form";
+import { getLimits } from "@/lib/plan";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
@@ -26,6 +28,8 @@ export default async function SettingsPage() {
 
   // Subscription terbaru untuk banner status
   const latestSub = subscriptions?.[0];
+
+  const limits = getLimits(profile?.plan, profile?.plan_expires_at);
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-5">
@@ -83,8 +87,26 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      {/* Plan */}
+      {/* Branding Kustom (Business) */}
       <div className="bg-white rounded-xl border border-[#E4E2DC]">
+        <div className="px-5 py-3.5 border-b border-[#E4E2DC] flex items-center justify-between">
+          <h2 className="text-sm font-bold text-[#1C1B19]">Branding Kustom</h2>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand/10 text-brand">
+            Business
+          </span>
+        </div>
+        <div className="p-5">
+          <BrandingForm
+            userId={user.id}
+            currentLogoUrl={profile?.brand_logo_url ?? null}
+            currentColor={profile?.brand_color ?? null}
+            enabled={limits.customBranding}
+          />
+        </div>
+      </div>
+
+      {/* Plan */}
+      <div id="langganan" className="bg-white rounded-xl border border-[#E4E2DC]">
         <div className="px-5 py-3.5 border-b border-[#E4E2DC]">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-[#1C1B19]">Langganan</h2>
