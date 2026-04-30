@@ -3,6 +3,8 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { DeleteStudentButton } from "../../../../components/students/delete-student-button";
+import { ParentPortalShare } from "../../../../components/students/parent-portal-share";
+import { getLimits } from "../../../../lib/plan";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -15,14 +17,23 @@ export default async function StudentDetailPage({ params }: Props) {
 
   if (!user) redirect("/auth/login");
 
-  const { data: student } = await supabase
-    .from("students")
-    .select("*")
-    .eq("id", id)
-    .eq("guru_id", user.id)
-    .single();
+  const [{ data: student }, { data: profile }] = await Promise.all([
+    supabase
+      .from("students")
+      .select("*")
+      .eq("id", id)
+      .eq("guru_id", user.id)
+      .single(),
+    supabase
+      .from("profiles")
+      .select("plan, plan_expires_at")
+      .eq("id", user.id)
+      .single(),
+  ]);
 
   if (!student) notFound();
+
+  const limits = getLimits(profile?.plan, profile?.plan_expires_at);
 
   const fields = [
     { label: "Mata Pelajaran", value: student.subject },
@@ -61,7 +72,7 @@ export default async function StudentDetailPage({ params }: Props) {
       </div>
 
       {/* Detail Card */}
-      <div className="bg-white rounded-xl border border-[#E4E2DC] divide-y divide-[#E4E2DC]">
+      <div className="bg-white rounded-xl border border-[#E4E2DC] divide-y divide-[#E4E2DC] mb-5">
         {fields.map(({ label, value }) => (
           <div key={label} className="flex items-start px-5 py-4 gap-4">
             <p className="text-sm text-[#6B6860] w-36 flex-shrink-0">{label}</p>
@@ -69,6 +80,15 @@ export default async function StudentDetailPage({ params }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Portal Orang Tua (Business) */}
+      <ParentPortalShare
+        studentName={student.name}
+        parentName={student.parent_name}
+        parentPhone={student.parent_phone}
+        portalToken={student.portal_token}
+        enabled={limits.parentPortal}
+      />
 
     </div>
   );
