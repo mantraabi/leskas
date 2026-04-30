@@ -70,7 +70,7 @@ export function BrandingForm({ userId, currentLogoUrl, currentColor, enabled }: 
     setUploading(true);
     const supabase = createClient();
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
-    const filePath = `brand-logos/${userId}-${Date.now()}.${ext}`;
+    const filePath = `brand-logos/${userId}/${Date.now()}.${ext}`;
 
     const { error: upErr } = await supabase.storage
       .from("assets")
