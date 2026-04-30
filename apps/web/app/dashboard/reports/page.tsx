@@ -50,8 +50,7 @@ export default async function ReportsPage() {
     supabase
       .from("students")
       .select("id, name")
-      .eq("guru_id", user.id)
-      .eq("status", "active"),
+      .eq("guru_id", user.id),
   ]);
 
   // Hitung pemasukan per bulan
@@ -62,10 +61,10 @@ export default async function ReportsPage() {
     return { label, total };
   });
 
-  // Hitung total per siswa
+  // Hitung total per siswa (match by student_id, bukan nama, untuk hindari tabrakan nama)
   const studentRevenue = students?.map((s) => {
     const total = invoices
-      ?.filter((inv) => (inv.students as any)?.name === s.name && inv.status === "paid")
+      ?.filter((inv) => inv.student_id === s.id && inv.status === "paid")
       .reduce((sum, inv) => sum + inv.amount, 0) ?? 0;
     return { name: s.name, total };
   }).sort((a, b) => b.total - a.total).slice(0, 5) ?? [];

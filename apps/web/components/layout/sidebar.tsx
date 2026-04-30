@@ -31,12 +31,14 @@ export function Sidebar({ name, plan }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const initials = name
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initials =
+    name
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
 
   async function handleLogout() {
     const supabase = createClient();

@@ -34,8 +34,12 @@ export default async function DashboardPage() {
   const now = new Date();
   const bulanIniStart = startOfMonth(now).toISOString();
   const bulanIniEnd = endOfMonth(now).toISOString();
-  const hariIniStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-  const hariIniEnd = new Date(now.setHours(23, 59, 59, 999)).toISOString();
+  const startToday = new Date(now);
+  startToday.setHours(0, 0, 0, 0);
+  const endToday = new Date(now);
+  endToday.setHours(23, 59, 59, 999);
+  const hariIniStart = startToday.toISOString();
+  const hariIniEnd = endToday.toISOString();
 
   const [
     { count: totalSiswa },
@@ -73,7 +77,7 @@ export default async function DashboardPage() {
 
   const totalBelumBayar = invoices
     ?.filter((inv) => inv.status === "unpaid" || inv.status === "overdue")
-    .reduce((sum, inv) => sum + (inv.amount - inv.amount_paid), 0) ?? 0;
+    .reduce((sum, inv) => sum + (inv.amount - (inv.amount_paid ?? 0)), 0) ?? 0;
 
   const jumlahBelumBayar = invoices?.filter(
     (inv) => inv.status === "unpaid" || inv.status === "overdue"
@@ -171,7 +175,7 @@ export default async function DashboardPage() {
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[#1C1B19]">
-                        {(inv.students as any)?.name ?? "Siswa"}
+                        {(inv.students as { name: string } | null)?.name ?? "Siswa"}
                       </p>
                       <p className="text-xs text-[#6B6860]">
                         {format(new Date(inv.due_date), "d MMM yyyy", { locale: id })}
@@ -221,10 +225,10 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[#1C1B19]">
-                        {(sesi.students as any)?.name ?? "Siswa"}
+                        {(sesi.students as { name: string; subject: string } | null)?.name ?? "Siswa"}
                       </p>
                       <p className="text-xs text-brand font-medium">
-                        {(sesi.students as any)?.subject}
+                        {(sesi.students as { name: string; subject: string } | null)?.subject}
                       </p>
                     </div>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${status.class}`}>

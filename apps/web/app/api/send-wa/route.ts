@@ -6,8 +6,6 @@ import {
   templateReminder,
   templateTerlambat,
 } from "../../../lib/fonnte";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();

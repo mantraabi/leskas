@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { SubscriptionTable } from "@/components/admin/subscription-table";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
 
 export default async function AdminSubscriptionsPage() {
   const supabase = await createClient();

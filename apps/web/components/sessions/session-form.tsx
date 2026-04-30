@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "../../lib/supabase/client";
 import { format } from "date-fns";
 
@@ -95,7 +96,7 @@ export function SessionForm({ students }: { students: Student[] }) {
           {students.length === 0 && (
             <p className="text-xs text-amber-600">
               Belum ada siswa aktif.{" "}
-              <a href="/dashboard/students/new" className="underline">Tambah siswa dulu</a>
+              <Link href="/dashboard/students/new" className="underline">Tambah siswa dulu</Link>
             </p>
           )}
         </div>

@@ -86,6 +86,7 @@ export function SubscriptionTable({
           onClick={() => setImageUrl(null)}
         >
           <div className="bg-white rounded-2xl p-4 max-w-sm w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt="Bukti bayar" className="w-full rounded-xl" />
             <button
               onClick={() => setImageUrl(null)}
@@ -105,10 +106,10 @@ export function SubscriptionTable({
               {/* Info guru */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-[#1C1B19]">
-                  {(sub.profiles as any)?.name ?? "Guru"}
+                  {sub.profiles?.name ?? "Guru"}
                 </p>
                 <p className="text-xs text-[#6B6860] mt-0.5">
-                  {(sub.profiles as any)?.phone ?? "-"} ·{" "}
+                  {sub.profiles?.phone ?? "-"} ·{" "}
                   {format(new Date(sub.created_at), "d MMM yyyy, HH.mm", { locale: id })}
                 </p>
               </div>

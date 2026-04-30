@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Check, Upload, X } from "lucide-react";
-import Image from "next/image";
 
 interface Props {
   currentPlan: string;
@@ -55,7 +54,7 @@ function formatRupiah(amount: number) {
   }).format(amount);
 }
 
-export function PlanCard({ currentPlan, expiresAt, guruId }: Props) {
+export function PlanCard({ currentPlan, guruId }: Props) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -180,6 +179,7 @@ export function PlanCard({ currentPlan, expiresAt, guruId }: Props) {
           {qrisUrl ? (
             <div className="flex justify-center">
               <div className="bg-white rounded-xl p-3 border border-[#E4E2DC] inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={qrisUrl}
                   alt="QRIS LesKas"
@@ -192,6 +192,26 @@ export function PlanCard({ currentPlan, expiresAt, guruId }: Props) {
               <p className="text-xs text-[#9CA3AF]">QRIS belum dikonfigurasi</p>
             </div>
           )}
+
+          {/* Rekening Bank */}
+              <div className="bg-white rounded-xl border border-[#E4E2DC] p-4 flex flex-col gap-2">
+                <p className="text-xs font-semibold text-[#6B6860] uppercase tracking-wider">
+                  Atau Transfer Bank
+                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-[#1C1B19]">
+                      {process.env.NEXT_PUBLIC_BANK_NAME}
+                    </p>
+                    <p className="text-xs text-[#6B6860]">
+                      {process.env.NEXT_PUBLIC_BANK_ACCOUNT_NAME}
+                    </p>
+                  </div>
+                  <p className="text-sm font-mono font-bold text-brand">
+                    {process.env.NEXT_PUBLIC_BANK_NUMBER}
+                  </p>
+                </div>
+              </div>
 
           {/* Upload bukti */}
           <div className="flex flex-col gap-1.5">

@@ -33,7 +33,7 @@ export function ExportButton({ invoices }: Props) {
   const title = `Laporan Tagihan — ${format(new Date(), "MMMM yyyy", { locale: id })}`;
 
   const data: LaporanRow[] = invoices.map((inv) => ({
-    siswa: (inv.students as any)?.name ?? "Siswa",
+    siswa: inv.students?.name ?? "Siswa",
     jumlah: inv.amount,
     dibayar: inv.amount_paid,
     sisa: inv.amount - inv.amount_paid,
