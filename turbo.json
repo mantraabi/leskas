@@ -22,7 +22,9 @@
         "DUITKU_BASE_URL",
         "MIDTRANS_SERVER_KEY",
         "MIDTRANS_CLIENT_KEY",
-        "MIDTRANS_IS_PRODUCTION"
+        "MIDTRANS_IS_PRODUCTION",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "CRON_SECRET"
       ]
     },
     "dev": {

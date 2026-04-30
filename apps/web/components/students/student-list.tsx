@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Repeat } from "lucide-react";
 
 interface Student {
   id: string;
@@ -13,6 +13,7 @@ interface Student {
   parent_phone: string | null;
   status: "active" | "inactive";
   created_at: string;
+  auto_billing_enabled?: boolean | null;
 }
 
 interface StudentListProps {
@@ -148,6 +149,17 @@ export function StudentList({ students }: StudentListProps) {
                     {student.grade && `Kelas ${student.grade}`}
                   </p>
                 </div>
+
+                {/* Auto-billing badge */}
+                {student.auto_billing_enabled && (
+                  <span
+                    title="Tagihan otomatis aktif"
+                    className="hidden sm:flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand/10 text-brand"
+                  >
+                    <Repeat size={10} />
+                    Auto
+                  </span>
+                )}
 
                 {/* Subject */}
                 <span

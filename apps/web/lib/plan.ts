@@ -6,7 +6,12 @@ export interface PlanLimits {
   reports: boolean;
   exportPdf: boolean;
   exportCsv: boolean;
-  waBlast: boolean;
+  /** Tagihan otomatis bulanan (Business) */
+  recurringInvoice: boolean;
+  /** Portal magic-link untuk orang tua (Business) */
+  parentPortal: boolean;
+  /** Logo & warna kustom di invoice/portal (Business) */
+  customBranding: boolean;
   prioritySupport: boolean;
 }
 
@@ -17,7 +22,9 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     reports: false,
     exportPdf: false,
     exportCsv: false,
-    waBlast: false,
+    recurringInvoice: false,
+    parentPortal: false,
+    customBranding: false,
     prioritySupport: false,
   },
   pro: {
@@ -26,7 +33,9 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     reports: true,
     exportPdf: true,
     exportCsv: true,
-    waBlast: false,
+    recurringInvoice: false,
+    parentPortal: false,
+    customBranding: false,
     prioritySupport: false,
   },
   business: {
@@ -35,7 +44,9 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     reports: true,
     exportPdf: true,
     exportCsv: true,
-    waBlast: true,
+    recurringInvoice: true,
+    parentPortal: true,
+    customBranding: true,
     prioritySupport: true,
   },
 };

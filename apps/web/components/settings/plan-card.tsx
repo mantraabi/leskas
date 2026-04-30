@@ -14,33 +14,36 @@ const plans = [
     key: "free",
     label: "Free",
     price: 0,
+    tagline: "Cocok untuk mulai mengelola les",
     features: [
-      "Maks 10 siswa",
+      "Maks 10 siswa aktif",
       "Tagihan manual",
-      "Jadwal dasar",
+      "Jadwal & catatan sesi dasar",
     ],
   },
   {
     key: "pro",
     label: "Pro",
     price: 49000,
+    tagline: "Untuk guru yang sudah aktif",
     features: [
       "Unlimited siswa",
-      "Invoice otomatis",
-      "Notifikasi WhatsApp",
-      "Laporan keuangan",
-      "Export PDF",
+      "Notifikasi WhatsApp ke ortu",
+      "Laporan keuangan & analitik",
+      "Export Excel & PDF",
+      "Riwayat sesi tak terbatas",
     ],
   },
   {
     key: "business",
     label: "Business",
     price: 129000,
+    tagline: "Untuk tempat les profesional",
     features: [
       "Semua fitur Pro",
-      "Multi-pengajar",
-      "Payment gateway",
-      "WA blast ke ortu",
+      "Tagihan otomatis tiap bulan",
+      "Portal orang tua (magic link)",
+      "Branding kustom (logo & warna)",
       "Priority support",
     ],
   },
@@ -125,12 +128,15 @@ export function PlanCard({ currentPlan, guruId }: Props) {
             }}
           >
             <div className="flex items-center justify-between mb-3">
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-[#1C1B19]">{plan.label}</p>
                 <p className="text-xs text-[#6B6860]">
                   {plan.price === 0
                     ? "Gratis selamanya"
                     : `${formatRupiah(plan.price)} / bulan`}
+                </p>
+                <p className="text-[11px] text-[#9B9890] mt-1 italic">
+                  {plan.tagline}
                 </p>
               </div>
               {isActive && (

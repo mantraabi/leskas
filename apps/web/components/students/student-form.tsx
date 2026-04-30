@@ -20,7 +20,12 @@ const SUBJECTS = [
   "Lainnya",
 ];
 
-export function StudentForm() {
+interface Props {
+  /** True kalau guru di paket Business — boleh pakai Tagihan Otomatis */
+  canAutoBilling?: boolean;
+}
+
+export function StudentForm({ canAutoBilling = false }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,12 +37,20 @@ export function StudentForm() {
     parent_name: "",
     parent_phone: "",
     notes: "",
+    auto_billing_enabled: false,
+    billing_amount: "",
+    billing_day: "1",
   });
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const target = e.target;
+    if (target instanceof HTMLInputElement && target.type === "checkbox") {
+      setForm((prev) => ({ ...prev, [target.name]: target.checked }));
+      return;
+    }
+    setForm((prev) => ({ ...prev, [target.name]: target.value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -77,6 +90,22 @@ export function StudentForm() {
     }
   }
 
+  // Validasi tagihan otomatis kalau diaktifkan
+  if (canAutoBilling && form.auto_billing_enabled) {
+    const amount = parseFloat(form.billing_amount);
+    const day = parseInt(form.billing_day, 10);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError("Nominal tagihan otomatis harus lebih dari 0.");
+      setLoading(false);
+      return;
+    }
+    if (!Number.isInteger(day) || day < 1 || day > 28) {
+      setError("Tanggal cetak tagihan harus antara 1 dan 28.");
+      setLoading(false);
+      return;
+    }
+  }
+
   const { error } = await supabase.from("students").insert({
     guru_id: user.id,
     name: form.name,
@@ -85,6 +114,15 @@ export function StudentForm() {
     parent_name: form.parent_name || null,
     parent_phone: form.parent_phone || null,
     notes: form.notes || null,
+    auto_billing_enabled: canAutoBilling ? form.auto_billing_enabled : false,
+    billing_amount:
+      canAutoBilling && form.auto_billing_enabled
+        ? parseFloat(form.billing_amount)
+        : null,
+    billing_day:
+      canAutoBilling && form.auto_billing_enabled
+        ? parseInt(form.billing_day, 10)
+        : null,
   });
 
   if (error) {
@@ -198,6 +236,67 @@ export function StudentForm() {
             className="w-full px-3 py-2.5 rounded-lg border border-[#E4E2DC] bg-white text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors resize-none"
           />
         </div>
+
+        {/* Tagihan Otomatis (Business only) */}
+        {canAutoBilling && (
+          <div className="border-t border-[#E4E2DC] pt-5 flex flex-col gap-3">
+            <div className="flex items-start gap-3">
+              <input
+                id="auto_billing_enabled"
+                name="auto_billing_enabled"
+                type="checkbox"
+                checked={form.auto_billing_enabled}
+                onChange={handleChange}
+                className="mt-0.5 w-4 h-4 rounded border-[#E4E2DC] text-brand focus:ring-brand"
+              />
+              <label htmlFor="auto_billing_enabled" className="flex-1 cursor-pointer">
+                <p className="text-sm font-semibold text-[#1C1B19]">
+                  Aktifkan Tagihan Otomatis
+                </p>
+                <p className="text-xs text-[#6B6860] mt-0.5">
+                  Sistem akan membuat invoice otomatis tiap bulan untuk siswa ini.
+                </p>
+              </label>
+            </div>
+
+            {form.auto_billing_enabled && (
+              <div className="grid grid-cols-2 gap-3 pl-7">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium text-[#6B6860]">
+                    Nominal per bulan
+                  </label>
+                  <input
+                    name="billing_amount"
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    placeholder="500000"
+                    value={form.billing_amount}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium text-[#6B6860]">
+                    Tanggal cetak
+                  </label>
+                  <select
+                    name="billing_day"
+                    value={form.billing_day}
+                    onChange={handleChange}
+                    className={inputClass}
+                  >
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                      <option key={d} value={d}>
+                        Setiap tanggal {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {error && (
           <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">

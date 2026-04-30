@@ -1,6 +1,21 @@
 import { StudentForm } from "../../../../components/students/student-form";
+import { createClient } from "../../../../lib/supabase/server";
+import { redirect } from "next/navigation";
+import { getLimits } from "../../../../lib/plan";
 
-export default function NewStudentPage() {
+export default async function NewStudentPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan, plan_expires_at")
+    .eq("id", user.id)
+    .single();
+
+  const limits = getLimits(profile?.plan, profile?.plan_expires_at);
+
   return (
     <div className="max-w-xl mx-auto">
       <div className="mb-6">
@@ -9,7 +24,7 @@ export default function NewStudentPage() {
           Isi data siswa baru kamu
         </p>
       </div>
-      <StudentForm />
+      <StudentForm canAutoBilling={limits.recurringInvoice} />
     </div>
   );
 }
