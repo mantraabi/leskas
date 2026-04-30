@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "../../lib/supabase/client";
+import { getLimits } from "../../lib/plan";
 
 const SUBJECTS = [
   "Matematika",
@@ -52,22 +53,25 @@ export function StudentForm() {
     return;
   }
 
-  // Cek limit plan Free
+  // Cek limit sesuai plan efektif (auto-downgrade kalau expired)
   const { data: profile } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("plan, plan_expires_at")
     .eq("id", user.id)
     .single();
 
-  if (profile?.plan === "free") {
+  const limits = getLimits(profile?.plan, profile?.plan_expires_at);
+  if (Number.isFinite(limits.maxStudents)) {
     const { count } = await supabase
       .from("students")
       .select("*", { count: "exact", head: true })
       .eq("guru_id", user.id)
       .eq("status", "active");
 
-    if ((count ?? 0) >= 10) {
-      setError("Batas maksimal 10 siswa untuk Free Plan. Upgrade ke Pro untuk unlimited siswa.");
+    if ((count ?? 0) >= limits.maxStudents) {
+      setError(
+        `Batas maksimal ${limits.maxStudents} siswa aktif untuk paket kamu. Upgrade ke Pro untuk unlimited siswa.`
+      );
       setLoading(false);
       return;
     }

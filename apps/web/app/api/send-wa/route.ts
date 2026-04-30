@@ -6,6 +6,7 @@ import {
   templateReminder,
   templateTerlambat,
 } from "../../../lib/fonnte";
+import { getLimits, gateErrorMessage } from "../../../lib/plan";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -13,6 +14,21 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Gate: WhatsApp notif hanya untuk Pro/Business (active)
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan, plan_expires_at")
+    .eq("id", user.id)
+    .single();
+
+  const limits = getLimits(profile?.plan, profile?.plan_expires_at);
+  if (!limits.whatsappNotif) {
+    return NextResponse.json(
+      { error: gateErrorMessage("Notifikasi WhatsApp", "pro") },
+      { status: 403 }
+    );
   }
 
   const body = await request.json();

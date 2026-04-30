@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Lock } from "lucide-react";
+import Link from "next/link";
 
 interface Props {
   invoiceId: string;
@@ -11,6 +12,8 @@ interface Props {
   nominal: number;
   jatuhTempo: string;
   status: string;
+  /** kalau true, tampilkan locked state karena user di paket Free */
+  locked?: boolean;
 }
 
 export function SendWAButton({
@@ -21,6 +24,7 @@ export function SendWAButton({
   nominal,
   jatuhTempo,
   status,
+  locked = false,
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -59,6 +63,30 @@ export function SendWAButton({
 
     setSent(true);
     setLoading(false);
+  }
+
+  if (locked) {
+    return (
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          disabled
+          className="flex items-center justify-center gap-2 h-10 w-full rounded-lg bg-[#F0EEE9] text-[#9CA3AF] text-sm font-semibold cursor-not-allowed"
+        >
+          <Lock size={14} />
+          Kirim Tagihan via WhatsApp
+        </button>
+        <p className="text-xs text-[#6B6860]">
+          Notifikasi WhatsApp tersedia di paket Pro.{" "}
+          <Link
+            href="/dashboard/settings"
+            className="text-brand font-semibold hover:underline"
+          >
+            Upgrade →
+          </Link>
+        </p>
+      </div>
+    );
   }
 
   if (sent) {

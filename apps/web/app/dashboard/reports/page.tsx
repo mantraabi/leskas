@@ -11,12 +11,42 @@ import {
 } from "date-fns";
 import { id } from "date-fns/locale";
 import { ExportButton } from "@/components/reports/export-button";
+import { UpgradePrompt } from "@/components/common/upgrade-prompt";
+import { getLimits } from "@/lib/plan";
 
 export default async function ReportsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/login");
+
+  // Cek plan dulu — Laporan adalah fitur Pro+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan, plan_expires_at")
+    .eq("id", user.id)
+    .single();
+
+  const limits = getLimits(profile?.plan, profile?.plan_expires_at);
+
+  if (!limits.reports) {
+    return (
+      <div className="max-w-4xl mx-auto flex flex-col gap-5">
+        <div>
+          <h1 className="text-xl font-bold text-[#1C1B19]">Laporan</h1>
+          <p className="text-sm text-[#6B6860] mt-0.5">
+            Analisis pemasukan & performa siswa
+          </p>
+        </div>
+        <UpgradePrompt
+          variant="screen"
+          requiredPlan="pro"
+          title="Laporan keuangan tersedia di paket Pro"
+          description="Lihat tren pemasukan 6 bulan terakhir, rangking siswa terbanyak, dan export ke Excel/PDF. Upgrade untuk membuka fitur ini."
+        />
+      </div>
+    );
+  }
 
   const now = new Date();
 

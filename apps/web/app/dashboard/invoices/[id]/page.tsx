@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { PaymentForm } from "../../../../components/invoices/payment-form";
 import { SendWAButton } from "../../../../components/invoices/send-wa-button";
+import { getLimits } from "../../../../lib/plan";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -33,14 +34,23 @@ export default async function InvoiceDetailPage({ params }: Props) {
 
   if (!user) redirect("/auth/login");
 
-  const { data: invoice } = await supabase
-    .from("invoices")
-    .select("*, students(name, parent_name, parent_phone)")
-    .eq("id", invoiceId)
-    .eq("guru_id", user.id)
-    .single();
+  const [{ data: invoice }, { data: profile }] = await Promise.all([
+    supabase
+      .from("invoices")
+      .select("*, students(name, parent_name, parent_phone)")
+      .eq("id", invoiceId)
+      .eq("guru_id", user.id)
+      .single(),
+    supabase
+      .from("profiles")
+      .select("plan, plan_expires_at")
+      .eq("id", user.id)
+      .single(),
+  ]);
 
   if (!invoice) notFound();
+
+  const limits = getLimits(profile?.plan, profile?.plan_expires_at);
 
   const { data: payments } = await supabase
     .from("payments")
@@ -131,6 +141,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
               nominal={invoice.amount - invoice.amount_paid}
               jatuhTempo={format(new Date(invoice.due_date), "d MMMM yyyy", { locale: id })}
               status={invoice.status}
+              locked={!limits.whatsappNotif}
             />
           </div>
         )}
