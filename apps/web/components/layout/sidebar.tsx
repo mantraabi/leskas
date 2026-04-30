@@ -47,7 +47,7 @@ export function Sidebar({ name, plan }: SidebarProps) {
   }
 
   return (
-    <aside className="w-[200px] bg-white border-r border-[#E4E2DC] flex flex-col flex-shrink-0 h-full">
+    <aside className="hidden md:flex w-[200px] bg-white border-r border-[#E4E2DC] flex-col flex-shrink-0 h-full">
 
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-5 border-b border-[#E4E2DC]">
@@ -74,6 +74,7 @@ export function Sidebar({ name, plan }: SidebarProps) {
             <Link
               key={href}
               href={href}
+              prefetch
               className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium mb-0.5 transition-all ${
                 active
                   ? "bg-brand/10 text-brand"
