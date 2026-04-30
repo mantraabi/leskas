@@ -24,6 +24,9 @@ export default async function SettingsPage() {
     .order("created_at", { ascending: false })
     .limit(5);
 
+  // Subscription terbaru untuk banner status
+  const latestSub = subscriptions?.[0];
+
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-5">
       <div>
@@ -32,6 +35,38 @@ export default async function SettingsPage() {
           Profil & langganan kamu
         </p>
       </div>
+
+      {/* Banner status langganan terakhir */}
+      {latestSub?.status === "pending" && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-3">
+          <span className="text-lg leading-none mt-0.5">⏳</span>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-amber-800">
+              Bukti pembayaran kamu sedang ditinjau
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Admin akan memverifikasi pembayaran <span className="capitalize">{latestSub.plan}</span> Plan
+              kamu dalam 1×24 jam. Plan akan otomatis aktif setelah dikonfirmasi.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {latestSub?.status === "rejected" && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-3">
+          <span className="text-lg leading-none mt-0.5">⚠️</span>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-red-800">
+              Pengajuan langganan ditolak
+            </p>
+            <p className="text-xs text-red-700 mt-0.5">
+              Bukti pembayaran <span className="capitalize">{latestSub.plan}</span> Plan kamu tidak dapat
+              diverifikasi. Silakan upload ulang bukti yang valid, atau hubungi admin LesKas
+              untuk bantuan.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Profile */}
       <div className="bg-white rounded-xl border border-[#E4E2DC]">
@@ -76,27 +111,58 @@ export default async function SettingsPage() {
             </h2>
           </div>
           <div className="divide-y divide-[#E4E2DC]">
-            {subscriptions.map((sub) => (
-              <div key={sub.id} className="flex items-center px-5 py-3.5 gap-4">
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-[#1C1B19] capitalize">
-                    {sub.plan} Plan
-                  </p>
-                  <p className="text-xs text-[#6B6860] mt-0.5">
-                    {format(new Date(sub.started_at), "d MMM yyyy", { locale: id })}
-                    {" → "}
-                    {format(new Date(sub.expires_at), "d MMM yyyy", { locale: id })}
+            {subscriptions.map((sub) => {
+              const statusMeta =
+                sub.status === "active"
+                  ? { label: "Aktif", class: "bg-emerald-100 text-emerald-700" }
+                  : sub.status === "pending"
+                  ? { label: "Menunggu konfirmasi", class: "bg-amber-100 text-amber-700" }
+                  : sub.status === "rejected"
+                  ? { label: "Ditolak", class: "bg-red-100 text-red-700" }
+                  : sub.status === "expired"
+                  ? { label: "Kedaluwarsa", class: "bg-slate-100 text-slate-600" }
+                  : { label: sub.status, class: "bg-slate-100 text-slate-600" };
+
+              const periodeText =
+                sub.status === "active" && sub.started_at && sub.expires_at
+                  ? `${format(new Date(sub.started_at), "d MMM yyyy", { locale: id })} → ${format(
+                      new Date(sub.expires_at),
+                      "d MMM yyyy",
+                      { locale: id }
+                    )}`
+                  : sub.status === "pending"
+                  ? `Diajukan ${format(new Date(sub.created_at), "d MMM yyyy, HH.mm", { locale: id })}`
+                  : sub.status === "rejected"
+                  ? `Ditolak admin · diajukan ${format(new Date(sub.created_at), "d MMM yyyy", {
+                      locale: id,
+                    })}`
+                  : `Diajukan ${format(new Date(sub.created_at), "d MMM yyyy", { locale: id })}`;
+
+              return (
+                <div key={sub.id} className="flex items-center px-5 py-3.5 gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-[#1C1B19] capitalize">
+                        {sub.plan} Plan
+                      </p>
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusMeta.class}`}
+                      >
+                        {statusMeta.label}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#6B6860] mt-0.5">{periodeText}</p>
+                  </div>
+                  <p className="text-sm font-bold font-mono text-[#1C1B19] flex-shrink-0">
+                    {new Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                      minimumFractionDigits: 0,
+                    }).format(sub.amount)}
                   </p>
                 </div>
-                <p className="text-sm font-bold font-mono text-[#1C1B19]">
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  }).format(sub.amount)}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
