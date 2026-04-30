@@ -40,6 +40,7 @@ export function SubscriptionTable({
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [list, setList] = useState(subscriptions);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   async function handleAction(
     subId: string,
@@ -49,12 +50,15 @@ export function SubscriptionTable({
     action: "approve" | "reject"
   ) {
     setLoadingId(subId);
+    setActionError(null);
 
     const response = await fetch("/api/admin/subscription-action", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subId, guruId, plan, expiresAt, action }),
     });
+
+    const data = await response.json().catch(() => ({}));
 
     if (response.ok) {
       setList((prev) =>
@@ -64,6 +68,8 @@ export function SubscriptionTable({
             : s
         )
       );
+    } else {
+      setActionError(data.error ?? `Gagal ${action}. Coba lagi.`);
     }
 
     setLoadingId(null);
@@ -95,6 +101,12 @@ export function SubscriptionTable({
               Tutup
             </button>
           </div>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="mb-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+          {actionError}
         </div>
       )}
 
