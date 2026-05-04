@@ -29,7 +29,7 @@ export async function GET(request: Request, { params }: Params) {
     .select(
       `id, amount, paid_at, method, receipt_number,
        invoices!inner(
-         id, guru_id, due_date, notes, invoice_number,
+         id, guru_id, due_date, notes,
          students!inner(id, name, subject, parent_name, branch_id, portal_token)
        )`
     )
@@ -37,7 +37,14 @@ export async function GET(request: Request, { params }: Params) {
     .single();
 
   if (payErr || !payment) {
-    return NextResponse.json({ error: "Pembayaran tidak ditemukan" }, { status: 404 });
+    console.error("[receipt-pdf] payment lookup failed", { paymentId, error: payErr });
+    return NextResponse.json(
+      {
+        error: "Pembayaran tidak ditemukan",
+        detail: payErr?.message ?? null,
+      },
+      { status: 404 }
+    );
   }
 
   // Supabase ngembalikan join sebagai object kalau !inner, tapi typenya bisa array
@@ -117,7 +124,7 @@ export async function GET(request: Request, { params }: Params) {
     studentName: student.name,
     parentName: student.parent_name,
     subject: student.subject,
-    invoiceNumber: invoice.invoice_number ?? null,
+    invoiceNumber: null,
     invoiceDueDate: invoice.due_date,
     invoiceNotes: invoice.notes,
     paymentMethod: payment.method ?? null,
