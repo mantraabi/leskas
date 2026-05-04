@@ -5,6 +5,7 @@ import { getEffectivePlan } from "@/lib/plan";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { GraduationCap, Receipt, History, AlertCircle } from "lucide-react";
+import { DownloadReceiptButton } from "@/components/receipts/download-receipt-button";
 
 interface Props {
   params: Promise<{ token: string }>;
@@ -254,7 +255,7 @@ export default async function ParentPortalPage({ params }: Props) {
           <div className="divide-y divide-[#E4E2DC]">
             {payments?.map((p) => (
               <div key={p.id} className="px-5 py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-[#1C1B19]">
                     {format(new Date(p.paid_at), "d MMMM yyyy", { locale: id })}
                   </p>
@@ -265,6 +266,7 @@ export default async function ParentPortalPage({ params }: Props) {
                 <p className="text-sm font-bold text-green-700 flex-shrink-0">
                   {formatRupiah(p.amount)}
                 </p>
+                <DownloadReceiptButton paymentId={p.id} enabled portalToken={token} />
               </div>
             ))}
           </div>

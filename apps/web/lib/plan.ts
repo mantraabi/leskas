@@ -14,6 +14,10 @@ export interface PlanLimits {
   customBranding: boolean;
   /** Multi-cabang / lokasi (Business) */
   branches: boolean;
+  /** Kwitansi PDF resmi (Pro+) */
+  pdfReceipt: boolean;
+  /** Kwitansi PDF dengan logo & warna brand (Business) */
+  brandedReceipt: boolean;
   prioritySupport: boolean;
 }
 
@@ -28,6 +32,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     parentPortal: false,
     customBranding: false,
     branches: false,
+    pdfReceipt: false,
+    brandedReceipt: false,
     prioritySupport: false,
   },
   pro: {
@@ -40,6 +46,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     parentPortal: false,
     customBranding: false,
     branches: false,
+    pdfReceipt: true,
+    brandedReceipt: false,
     prioritySupport: false,
   },
   business: {
@@ -52,6 +60,8 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     parentPortal: true,
     customBranding: true,
     branches: true,
+    pdfReceipt: true,
+    brandedReceipt: true,
     prioritySupport: true,
   },
 };

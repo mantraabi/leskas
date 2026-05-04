@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { PaymentForm } from "../../../../components/invoices/payment-form";
 import { SendWAButton } from "../../../../components/invoices/send-wa-button";
+import { DownloadReceiptButton } from "../../../../components/receipts/download-receipt-button";
 import { getLimits } from "../../../../lib/plan";
 
 interface Props {
@@ -154,8 +155,8 @@ export default async function InvoiceDetailPage({ params }: Props) {
           </div>
           <div className="divide-y divide-[#E4E2DC]">
             {payments.map((p) => (
-              <div key={p.id} className="flex items-center px-5 py-3.5 gap-4">
-                <div className="flex-1">
+              <div key={p.id} className="flex items-center px-5 py-3.5 gap-3">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#1C1B19]">
                     {formatRupiah(p.amount)}
                   </p>
@@ -163,6 +164,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
                     {p.method} · {format(new Date(p.paid_at), "d MMM yyyy, HH.mm", { locale: id })}
                   </p>
                 </div>
+                <DownloadReceiptButton paymentId={p.id} enabled={limits.pdfReceipt} />
               </div>
             ))}
           </div>
