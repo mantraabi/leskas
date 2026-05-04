@@ -49,19 +49,21 @@ function formatTanggal(iso: string): string {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 28,
     fontSize: 10,
     fontFamily: "Helvetica",
     color: "#1C1B19",
-    lineHeight: 1.4,
+    lineHeight: 1.35,
+    display: "flex",
+    flexDirection: "column",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingBottom: 18,
+    paddingBottom: 12,
     borderBottomWidth: 2,
-    marginBottom: 22,
+    marginBottom: 16,
   },
   headerLeft: {
     flexDirection: "row",
@@ -69,19 +71,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     objectFit: "contain",
   },
   brandText: {
     flexDirection: "column",
   },
   brandName: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "bold",
   },
   brandSub: {
-    fontSize: 9,
+    fontSize: 8,
     color: "#6B6860",
     marginTop: 2,
   },
@@ -89,91 +91,88 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   receiptTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     letterSpacing: 2,
   },
   receiptNumber: {
-    fontSize: 9,
+    fontSize: 8,
     color: "#6B6860",
-    marginTop: 4,
+    marginTop: 3,
   },
   body: {
-    marginBottom: 26,
+    marginBottom: 10,
   },
   row: {
     flexDirection: "row",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   label: {
-    width: 130,
+    width: 110,
     color: "#6B6860",
-    fontSize: 10,
+    fontSize: 9,
   },
   value: {
     flex: 1,
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "bold",
   },
   amountBox: {
-    marginTop: 14,
-    padding: 14,
+    marginTop: 10,
+    padding: 10,
     borderWidth: 1,
     borderStyle: "solid",
-    borderRadius: 6,
+    borderRadius: 4,
   },
   amountLabel: {
-    fontSize: 9,
+    fontSize: 8,
     color: "#6B6860",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   amountValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     fontFamily: "Helvetica-Bold",
   },
   terbilangText: {
-    fontSize: 9,
+    fontSize: 8,
     fontStyle: "italic",
     color: "#6B6860",
-    marginTop: 6,
+    marginTop: 4,
   },
   notes: {
-    marginTop: 20,
-    padding: 10,
+    marginTop: 10,
+    padding: 8,
     backgroundColor: "#F5F4F0",
-    borderRadius: 4,
-    fontSize: 9,
+    borderRadius: 3,
+    fontSize: 8,
     color: "#6B6860",
   },
   signature: {
-    marginTop: 40,
+    marginTop: "auto",
     flexDirection: "row",
     justifyContent: "flex-end",
   },
   signatureBox: {
-    width: 200,
+    width: 160,
     alignItems: "center",
   },
   signatureLine: {
-    marginTop: 50,
+    marginTop: 36,
     borderTopWidth: 1,
     borderTopColor: "#1C1B19",
     width: "100%",
-    paddingTop: 4,
+    paddingTop: 3,
     textAlign: "center",
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "bold",
   },
   footer: {
-    position: "absolute",
-    left: 40,
-    right: 40,
-    bottom: 24,
+    marginTop: 10,
     textAlign: "center",
-    fontSize: 8,
+    fontSize: 7,
     color: "#9CA3AF",
-    paddingTop: 8,
+    paddingTop: 6,
     borderTopWidth: 1,
     borderTopColor: "#E4E2DC",
   },
@@ -189,7 +188,7 @@ export function ReceiptPDF({ data, branded }: { data: ReceiptData; branded: bool
       author={data.guruName}
       subject={`Pembayaran les ${data.subject}`}
     >
-      <Page size="A5" orientation="landscape" style={styles.page}>
+      <Page size="A5" orientation="portrait" style={styles.page}>
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: accent }]}>
           <View style={styles.headerLeft}>
