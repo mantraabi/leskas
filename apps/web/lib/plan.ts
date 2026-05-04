@@ -12,6 +12,8 @@ export interface PlanLimits {
   parentPortal: boolean;
   /** Logo & warna kustom di invoice/portal (Business) */
   customBranding: boolean;
+  /** Multi-cabang / lokasi (Business) */
+  branches: boolean;
   prioritySupport: boolean;
 }
 
@@ -25,6 +27,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     recurringInvoice: false,
     parentPortal: false,
     customBranding: false,
+    branches: false,
     prioritySupport: false,
   },
   pro: {
@@ -36,6 +39,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     recurringInvoice: false,
     parentPortal: false,
     customBranding: false,
+    branches: false,
     prioritySupport: false,
   },
   business: {
@@ -47,6 +51,7 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
     recurringInvoice: true,
     parentPortal: true,
     customBranding: true,
+    branches: true,
     prioritySupport: true,
   },
 };

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { InvoiceForm } from "../../../../components/invoices/invoice-form";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getSelectedBranch } from "@/lib/actions/branches";
 
 export default async function NewInvoicePage() {
   const supabase = await createClient();
@@ -10,12 +11,15 @@ export default async function NewInvoicePage() {
 
   if (!user) redirect("/auth/login");
 
-  const { data: students } = await supabase
+  const branchId = await getSelectedBranch();
+  let studentsQ = supabase
     .from("students")
     .select("id, name, subject")
     .eq("guru_id", user.id)
     .eq("status", "active")
     .order("name");
+  if (branchId) studentsQ = studentsQ.eq("branch_id", branchId);
+  const { data: students } = await studentsQ;
 
   return (
     <div className="max-w-xl mx-auto">

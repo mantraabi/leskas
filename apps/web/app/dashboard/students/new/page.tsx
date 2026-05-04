@@ -16,6 +16,16 @@ export default async function NewStudentPage() {
 
   const limits = getLimits(profile?.plan, profile?.plan_expires_at);
 
+  let branches: { id: string; name: string }[] = [];
+  if (limits.branches) {
+    const { data } = await supabase
+      .from("branches")
+      .select("id, name")
+      .eq("guru_id", user.id)
+      .order("created_at");
+    branches = data ?? [];
+  }
+
   return (
     <div className="max-w-xl mx-auto">
       <div className="mb-6">
@@ -24,7 +34,7 @@ export default async function NewStudentPage() {
           Isi data siswa baru kamu
         </p>
       </div>
-      <StudentForm canAutoBilling={limits.recurringInvoice} />
+      <StudentForm canAutoBilling={limits.recurringInvoice} branches={branches} />
     </div>
   );
 }

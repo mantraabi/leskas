@@ -105,6 +105,30 @@ export default async function SettingsPage() {
         </div>
       </div>
 
+      {/* Cabang / Lokasi (Business) */}
+      <div className="bg-white rounded-xl border border-[#E4E2DC]">
+        <div className="px-5 py-3.5 border-b border-[#E4E2DC] flex items-center justify-between">
+          <h2 className="text-sm font-bold text-[#1C1B19]">Cabang / Lokasi</h2>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand/10 text-brand">
+            Business
+          </span>
+        </div>
+        <div className="p-5">
+          {limits.branches ? (
+            <a
+              href="/dashboard/branches"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark transition-colors"
+            >
+              Kelola Cabang →
+            </a>
+          ) : (
+            <p className="text-sm text-[#6B6860]">
+              Upgrade ke <span className="font-semibold text-brand">Business</span> untuk mengelola multi-cabang/lokasi dan filter data per cabang.
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Plan */}
       <div id="langganan" className="bg-white rounded-xl border border-[#E4E2DC]">
         <div className="px-5 py-3.5 border-b border-[#E4E2DC]">

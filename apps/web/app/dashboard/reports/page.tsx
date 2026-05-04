@@ -13,6 +13,7 @@ import { id } from "date-fns/locale";
 import { ExportButton } from "@/components/reports/export-button";
 import { UpgradePrompt } from "@/components/common/upgrade-prompt";
 import { getLimits } from "@/lib/plan";
+import { getSelectedBranch } from "@/lib/actions/branches";
 
 export default async function ReportsPage() {
   const supabase = await createClient();
@@ -50,6 +51,18 @@ export default async function ReportsPage() {
 
   const now = new Date();
 
+  // Branch filter
+  const branchId = await getSelectedBranch();
+  let branchStudentIds: string[] | null = null;
+  if (branchId) {
+    const { data: bs } = await supabase
+      .from("students")
+      .select("id")
+      .eq("guru_id", user.id)
+      .eq("branch_id", branchId);
+    branchStudentIds = bs?.map((s) => s.id) ?? [];
+  }
+
   // Ambil data 6 bulan terakhir
   const months = Array.from({ length: 6 }, (_, i) => {
     const date = subMonths(now, 5 - i);
@@ -64,24 +77,35 @@ export default async function ReportsPage() {
   const bulanIniStart = startOfMonth(now).toISOString();
   const bulanIniEnd = endOfMonth(now).toISOString();
 
+  let paymentQ = supabase
+    .from("payments")
+    .select("amount, paid_at, invoices!inner(guru_id, student_id)")
+    .eq("invoices.guru_id", user.id);
+  if (branchStudentIds && branchStudentIds.length > 0)
+    paymentQ = paymentQ.in("invoices.student_id", branchStudentIds);
+  else if (branchStudentIds && branchStudentIds.length === 0)
+    paymentQ = paymentQ.in("invoices.student_id", ["__none__"]);
+
+  let invoiceQ = supabase
+    .from("invoices")
+    .select("*, students(name)")
+    .eq("guru_id", user.id);
+  if (branchStudentIds && branchStudentIds.length > 0)
+    invoiceQ = invoiceQ.in("student_id", branchStudentIds);
+  else if (branchStudentIds && branchStudentIds.length === 0)
+    invoiceQ = invoiceQ.in("student_id", ["__none__"]);
+
+  let studentQ = supabase
+    .from("students")
+    .select("id, name")
+    .eq("guru_id", user.id);
+  if (branchId) studentQ = studentQ.eq("branch_id", branchId);
+
   const [
     { data: allPayments },
     { data: invoices },
     { data: students },
-  ] = await Promise.all([
-    supabase
-      .from("payments")
-      .select("amount, paid_at, invoices!inner(guru_id)")
-      .eq("invoices.guru_id", user.id),
-    supabase
-      .from("invoices")
-      .select("*, students(name)")
-      .eq("guru_id", user.id),
-    supabase
-      .from("students")
-      .select("id, name")
-      .eq("guru_id", user.id),
-  ]);
+  ] = await Promise.all([paymentQ, invoiceQ, studentQ]);
 
   // Hitung pemasukan per bulan
   const revenueData = months.map(({ label, start, end }) => {

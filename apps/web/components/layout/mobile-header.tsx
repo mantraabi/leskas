@@ -3,13 +3,21 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "../../lib/supabase/client";
 import { LogOut } from "lucide-react";
+import { BranchSelector } from "./branch-selector";
+
+interface Branch {
+  id: string;
+  name: string;
+}
 
 interface Props {
   name: string;
   plan: string;
+  branches?: Branch[];
+  selectedBranchId?: string | null;
 }
 
-export function MobileHeader({ name, plan }: Props) {
+export function MobileHeader({ name, plan, branches = [], selectedBranchId = null }: Props) {
   const router = useRouter();
 
   async function handleLogout() {
@@ -64,6 +72,12 @@ export function MobileHeader({ name, plan }: Props) {
           <LogOut size={15} />
         </button>
       </div>
+      {/* Branch Selector */}
+      {branches.length > 0 && (
+        <div className="border-t border-[#E4E2DC] mx-4 pt-1.5 pb-1">
+          <BranchSelector branches={branches} selectedBranchId={selectedBranchId ?? null} compact />
+        </div>
+      )}
     </header>
   );
 }

@@ -34,6 +34,16 @@ export default async function EditStudentPage({ params }: Props) {
 
   const limits = getLimits(profile?.plan, profile?.plan_expires_at);
 
+  let branches: { id: string; name: string }[] = [];
+  if (limits.branches) {
+    const { data } = await supabase
+      .from("branches")
+      .select("id, name")
+      .eq("guru_id", user.id)
+      .order("created_at");
+    branches = data ?? [];
+  }
+
   return (
     <div className="max-w-xl mx-auto">
       <Link
@@ -47,7 +57,7 @@ export default async function EditStudentPage({ params }: Props) {
         <h1 className="text-xl font-bold text-[#1C1B19]">Edit Siswa</h1>
         <p className="text-sm text-[#6B6860] mt-0.5">Ubah data {student.name}</p>
       </div>
-      <StudentEditForm student={student} canAutoBilling={limits.recurringInvoice} />
+      <StudentEditForm student={student} canAutoBilling={limits.recurringInvoice} branches={branches} />
     </div>
   );
 }

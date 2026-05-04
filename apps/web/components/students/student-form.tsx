@@ -20,12 +20,19 @@ const SUBJECTS = [
   "Lainnya",
 ];
 
+interface Branch {
+  id: string;
+  name: string;
+}
+
 interface Props {
   /** True kalau guru di paket Business — boleh pakai Tagihan Otomatis */
   canAutoBilling?: boolean;
+  /** Daftar cabang milik guru (Business plan) */
+  branches?: Branch[];
 }
 
-export function StudentForm({ canAutoBilling = false }: Props) {
+export function StudentForm({ canAutoBilling = false, branches = [] }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -37,6 +44,7 @@ export function StudentForm({ canAutoBilling = false }: Props) {
     parent_name: "",
     parent_phone: "",
     notes: "",
+    branch_id: "",
     auto_billing_enabled: false,
     billing_amount: "",
     billing_day: "1",
@@ -114,6 +122,7 @@ export function StudentForm({ canAutoBilling = false }: Props) {
     parent_name: form.parent_name || null,
     parent_phone: form.parent_phone || null,
     notes: form.notes || null,
+    branch_id: form.branch_id || null,
     auto_billing_enabled: canAutoBilling ? form.auto_billing_enabled : false,
     billing_amount:
       canAutoBilling && form.auto_billing_enabled
@@ -221,6 +230,26 @@ export function StudentForm({ canAutoBilling = false }: Props) {
             className={inputClass}
           />
         </div>
+
+        {/* Cabang */}
+        {branches.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-[#1C1B19]">
+              Cabang / Lokasi
+            </label>
+            <select
+              name="branch_id"
+              value={form.branch_id}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              <option value="">Tanpa cabang</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Catatan */}
         <div className="flex flex-col gap-1.5">

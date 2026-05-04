@@ -19,18 +19,26 @@ interface Student {
   parent_phone: string | null;
   notes: string | null;
   status: "active" | "inactive";
+  branch_id?: string | null;
   auto_billing_enabled?: boolean | null;
   billing_amount?: number | null;
   billing_day?: number | null;
+}
+
+interface Branch {
+  id: string;
+  name: string;
 }
 
 interface Props {
   student: Student;
   /** True kalau guru di paket Business — boleh pakai Tagihan Otomatis */
   canAutoBilling?: boolean;
+  /** Daftar cabang milik guru (Business plan) */
+  branches?: Branch[];
 }
 
-export function StudentEditForm({ student, canAutoBilling = false }: Props) {
+export function StudentEditForm({ student, canAutoBilling = false, branches = [] }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -43,6 +51,7 @@ export function StudentEditForm({ student, canAutoBilling = false }: Props) {
     parent_phone: student.parent_phone ?? "",
     notes: student.notes ?? "",
     status: student.status,
+    branch_id: student.branch_id ?? "",
     auto_billing_enabled: student.auto_billing_enabled ?? false,
     billing_amount:
       student.billing_amount != null ? String(student.billing_amount) : "",
@@ -92,6 +101,7 @@ export function StudentEditForm({ student, canAutoBilling = false }: Props) {
         parent_phone: form.parent_phone || null,
         notes: form.notes || null,
         status: form.status,
+        branch_id: form.branch_id || null,
         auto_billing_enabled: canAutoBilling ? form.auto_billing_enabled : false,
         billing_amount:
           canAutoBilling && form.auto_billing_enabled
@@ -155,6 +165,24 @@ export function StudentEditForm({ student, canAutoBilling = false }: Props) {
             <option value="inactive">Nonaktif</option>
           </select>
         </div>
+
+        {/* Cabang */}
+        {branches.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-[#1C1B19]">Cabang / Lokasi</label>
+            <select
+              name="branch_id"
+              value={form.branch_id}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              <option value="">Tanpa cabang</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-[#1C1B19]">Catatan</label>

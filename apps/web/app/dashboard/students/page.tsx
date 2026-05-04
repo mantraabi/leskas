@@ -4,6 +4,7 @@ import Link from "next/link";
 import { StudentList } from "@/components/students/student-list";
 import { UserPlus } from "lucide-react";
 import { getEffectivePlan, getLimits, PLAN_LIMITS } from "@/lib/plan";
+import { getSelectedBranch } from "@/lib/actions/branches";
 
 export default async function StudentsPage() {
   const supabase = await createClient();
@@ -11,12 +12,17 @@ export default async function StudentsPage() {
 
   if (!user) redirect("/auth/login");
 
+  const branchId = await getSelectedBranch();
+
+  let studentsQ = supabase
+    .from("students")
+    .select("*")
+    .eq("guru_id", user.id)
+    .order("created_at", { ascending: false });
+  if (branchId) studentsQ = studentsQ.eq("branch_id", branchId);
+
   const [{ data: students }, { data: profile }] = await Promise.all([
-    supabase
-      .from("students")
-      .select("*")
-      .eq("guru_id", user.id)
-      .order("created_at", { ascending: false }),
+    studentsQ,
     supabase
       .from("profiles")
       .select("plan, plan_expires_at")

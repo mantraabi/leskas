@@ -4,6 +4,7 @@ import Link from "next/link";
 import { InvoiceList } from "../../../components/invoices/invoice-list";
 import { FilePlus } from "lucide-react";
 import { ExportButton } from "@/components/reports/export-button";
+import { getSelectedBranch } from "@/lib/actions/branches";
 
 export default async function InvoicesPage() {
   const supabase = await createClient();
@@ -11,11 +12,28 @@ export default async function InvoicesPage() {
 
   if (!user) redirect("/auth/login");
 
-  const { data: invoices } = await supabase
+  const branchId = await getSelectedBranch();
+  let branchStudentIds: string[] | null = null;
+  if (branchId) {
+    const { data: bs } = await supabase
+      .from("students")
+      .select("id")
+      .eq("guru_id", user.id)
+      .eq("branch_id", branchId);
+    branchStudentIds = bs?.map((s) => s.id) ?? [];
+  }
+
+  let invoicesQ = supabase
     .from("invoices")
     .select("*, students(name, parent_phone)")
     .eq("guru_id", user.id)
     .order("created_at", { ascending: false });
+  if (branchStudentIds && branchStudentIds.length > 0)
+    invoicesQ = invoicesQ.in("student_id", branchStudentIds);
+  else if (branchStudentIds && branchStudentIds.length === 0)
+    invoicesQ = invoicesQ.in("student_id", ["__none__"]);
+
+  const { data: invoices } = await invoicesQ;
 
   return (
     <div className="max-w-4xl mx-auto">

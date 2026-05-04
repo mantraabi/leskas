@@ -10,8 +10,10 @@ import {
   Calendar,
   BarChart2,
   Settings,
+  MapPin,
   LogOut,
 } from "lucide-react";
+import { BranchSelector } from "./branch-selector";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -19,15 +21,23 @@ const navItems = [
   { label: "Tagihan", href: "/dashboard/invoices", icon: FileText },
   { label: "Jadwal", href: "/dashboard/sessions", icon: Calendar },
   { label: "Laporan", href: "/dashboard/reports", icon: BarChart2 },
+  { label: "Cabang", href: "/dashboard/branches", icon: MapPin },
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
+
+interface Branch {
+  id: string;
+  name: string;
+}
 
 interface SidebarProps {
   name: string;
   plan: string;
+  branches?: Branch[];
+  selectedBranchId?: string | null;
 }
 
-export function Sidebar({ name, plan }: SidebarProps) {
+export function Sidebar({ name, plan, branches = [], selectedBranchId = null }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -65,6 +75,13 @@ export function Sidebar({ name, plan }: SidebarProps) {
           </p>
         </div>
       </div>
+
+      {/* Branch Selector */}
+      {branches.length > 0 && (
+        <div className="mx-2 mt-2 rounded-lg border border-[#E4E2DC] bg-[#F5F4F0]">
+          <BranchSelector branches={branches} selectedBranchId={selectedBranchId ?? null} />
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3">

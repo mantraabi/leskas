@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { id } from "date-fns/locale";
+import { getSelectedBranch } from "@/lib/actions/branches";
 
 function formatRupiah(amount: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -41,37 +42,65 @@ export default async function DashboardPage() {
   const hariIniStart = startToday.toISOString();
   const hariIniEnd = endToday.toISOString();
 
+  // Branch filter
+  const branchId = await getSelectedBranch();
+  let branchStudentIds: string[] | null = null;
+  if (branchId) {
+    const { data: bs } = await supabase
+      .from("students")
+      .select("id")
+      .eq("guru_id", user.id)
+      .eq("branch_id", branchId);
+    branchStudentIds = bs?.map((s) => s.id) ?? [];
+  }
+
+  let studentQ = supabase
+    .from("students")
+    .select("*", { count: "exact", head: true })
+    .eq("guru_id", user.id)
+    .eq("status", "active");
+  if (branchId) studentQ = studentQ.eq("branch_id", branchId);
+
+  let invoiceQ = supabase
+    .from("invoices")
+    .select("*, students(name)")
+    .eq("guru_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(5);
+  if (branchStudentIds && branchStudentIds.length > 0)
+    invoiceQ = invoiceQ.in("student_id", branchStudentIds);
+  else if (branchStudentIds && branchStudentIds.length === 0)
+    invoiceQ = invoiceQ.in("student_id", ["__none__"]);
+
+  let sessionQ = supabase
+    .from("sessions")
+    .select("*, students(name, subject)")
+    .eq("guru_id", user.id)
+    .gte("scheduled_at", hariIniStart)
+    .lte("scheduled_at", hariIniEnd)
+    .order("scheduled_at");
+  if (branchStudentIds && branchStudentIds.length > 0)
+    sessionQ = sessionQ.in("student_id", branchStudentIds);
+  else if (branchStudentIds && branchStudentIds.length === 0)
+    sessionQ = sessionQ.in("student_id", ["__none__"]);
+
+  let paymentQ = supabase
+    .from("payments")
+    .select("amount, invoices!inner(guru_id, student_id)")
+    .eq("invoices.guru_id", user.id)
+    .gte("paid_at", bulanIniStart)
+    .lte("paid_at", bulanIniEnd);
+  if (branchStudentIds && branchStudentIds.length > 0)
+    paymentQ = paymentQ.in("invoices.student_id", branchStudentIds);
+  else if (branchStudentIds && branchStudentIds.length === 0)
+    paymentQ = paymentQ.in("invoices.student_id", ["__none__"]);
+
   const [
     { count: totalSiswa },
     { data: invoices },
     { data: sessions },
     { data: payments },
-  ] = await Promise.all([
-    supabase
-      .from("students")
-      .select("*", { count: "exact", head: true })
-      .eq("guru_id", user.id)
-      .eq("status", "active"),
-    supabase
-      .from("invoices")
-      .select("*, students(name)")
-      .eq("guru_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("sessions")
-      .select("*, students(name, subject)")
-      .eq("guru_id", user.id)
-      .gte("scheduled_at", hariIniStart)
-      .lte("scheduled_at", hariIniEnd)
-      .order("scheduled_at"),
-    supabase
-      .from("payments")
-      .select("amount, invoices!inner(guru_id)")
-      .eq("invoices.guru_id", user.id)
-      .gte("paid_at", bulanIniStart)
-      .lte("paid_at", bulanIniEnd),
-  ]);
+  ] = await Promise.all([studentQ, invoiceQ, sessionQ, paymentQ]);
 
   const pemasukanBulanIni = payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
 

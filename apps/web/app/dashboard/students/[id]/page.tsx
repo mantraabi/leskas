@@ -35,9 +35,21 @@ export default async function StudentDetailPage({ params }: Props) {
 
   const limits = getLimits(profile?.plan, profile?.plan_expires_at);
 
+  // Ambil nama cabang jika ada
+  let branchName: string | null = null;
+  if (student.branch_id) {
+    const { data: branch } = await supabase
+      .from("branches")
+      .select("name")
+      .eq("id", student.branch_id)
+      .single();
+    branchName = branch?.name ?? null;
+  }
+
   const fields = [
     { label: "Mata Pelajaran", value: student.subject },
     { label: "Kelas", value: student.grade ?? "-" },
+    ...(branchName ? [{ label: "Cabang", value: branchName }] : []),
     { label: "Nama Orang Tua", value: student.parent_name ?? "-" },
     { label: "No. WA Orang Tua", value: student.parent_phone ?? "-" },
     { label: "Status", value: student.status === "active" ? "Aktif" : "Nonaktif" },
